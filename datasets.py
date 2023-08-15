@@ -13,6 +13,13 @@ import torch
 from torch.utils.data.dataset import Subset
 from torchvision import datasets, transforms
 
+from torch.utils.data import DataLoader, TensorDataset
+
+from continuum import ClassIncremental
+from continuum.datasets import DomainNet, CIFAR100
+from continuum.tasks import split_train_val
+from continuum.scenarios import ContinualScenario
+
 from timm.data import create_transform
 
 from continual_datasets.continual_datasets import *
@@ -43,6 +50,15 @@ def build_continual_dataloader(args):
         args.nb_classes = len(dataset_val.classes)
 
         splited_dataset, class_mask = split_single_dataset(dataset_train, dataset_val, args)
+
+    elif args.dataset.startswith('Domain'):
+        dataloader, class_mask = useContinuum_DomainNet(transform_train, transform_val, args)
+
+        return dataloader, class_mask
+    elif args.dataset.startswith('CIFAR'):
+        dataloader, class_mask = useContinuum_CIFAR100(transform_train, transform_val, args)
+
+        return dataloader, class_mask
     else:
         if args.dataset == '5-datasets':
             dataset_list = ['SVHN', 'MNIST', 'CIFAR10', 'NotMNIST', 'FashionMNIST']
@@ -101,6 +117,80 @@ def build_continual_dataloader(args):
         dataloader.append({'train': data_loader_train, 'val': data_loader_val})
 
     return dataloader, class_mask
+
+def useContinuum_CIFAR100(transform_train, transform_val, args):
+    metric_logger = utils.MetricLogger(delimiter="  ")
+    mask = list()
+    dataloader = list()
+
+    # x, y, t = DomainNet(args.data_path, download=True, train=True)
+    # dataset = TensorDataset(x, y + y*t)
+    dataset = CIFAR100(args.data_path, download=True, train=True)
+    scenario = ClassIncremental(dataset, nb_tasks=args.num_tasks)
+
+    for taskid, train_taskSet in enumerate(scenario):
+        train_taskSet, val_taskSet = split_train_val(train_taskSet, val_split=0.2)
+        train_loader = DataLoader(train_taskSet,
+                                  batch_size=args.batch_size,
+                                  shuffle=True,
+                                  num_workers=args.num_workers,
+                                  pin_memory=args.pin_mem,
+                                  )
+        val_loader = DataLoader(val_taskSet,
+                                batch_size=args.batch_size,
+                                shuffle=True,
+                                num_workers=args.num_workers,
+                                pin_memory=args.pin_mem,
+                                )
+
+        labels = []
+        for _, y, _ in train_loader:
+            if y not in labels:
+                labels.append(y)
+
+        mask.append(labels)
+
+        dataloader.append({'train': train_loader, 'val': val_loader})
+
+    return dataloader, mask
+
+
+def useContinuum_DomainNet(transform_train, transform_val, args):
+    metric_logger = utils.MetricLogger(delimiter="  ")
+    mask = list()
+    dataloader = list()
+
+    # x, y, t = DomainNet(args.data_path, download=True, train=True)
+    # dataset = TensorDataset(x, y + y*t)
+    dataset = DomainNet(args.data_path, download=True, train=True)
+    scenario = ClassIncremental(dataset, nb_tasks=args.num_tasks)
+
+    for taskid, train_taskSet in enumerate(scenario):
+        train_taskSet, val_taskSet = split_train_val(train_taskSet, val_split=0.2)
+        train_loader = DataLoader(train_taskSet,
+                                  batch_size=args.batch_size,
+                                  shuffle=True,
+                                  num_workers=args.num_workers,
+                                  pin_memory=args.pin_mem,
+                                  )
+        val_loader = DataLoader(val_taskSet,
+                                batch_size=args.batch_size,
+                                shuffle=True,
+                                num_workers=args.num_workers,
+                                pin_memory=args.pin_mem,
+                                )
+
+        labels = []
+        for _, y, _ in train_loader:
+            if y not in labels:
+                labels.append(y)
+
+        mask.append(labels)
+
+        dataloader.append({'train': train_loader, 'val': val_loader})
+
+    return dataloader, mask
+
 
 def get_dataset(dataset, transform_train, transform_val, args,):
     if dataset == 'CIFAR100':
