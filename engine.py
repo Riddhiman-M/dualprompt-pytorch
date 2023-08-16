@@ -42,7 +42,7 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
     metric_logger.add_meter('Loss', utils.SmoothedValue(window_size=1, fmt='{value:.4f}'))
     header = f'Train: Epoch[{epoch+1:{int(math.log10(args.epochs))+1}}/{args.epochs}]'
     
-    for input, target in metric_logger.log_every(data_loader, args.print_freq, header):
+    for input, target, _ in metric_logger.log_every(data_loader, args.print_freq, header):
         input = input.to(device, non_blocking=True)
         target = target.to(device, non_blocking=True)
 
@@ -103,7 +103,7 @@ def evaluate(model: torch.nn.Module, original_model: torch.nn.Module, data_loade
     original_model.eval()
 
     with torch.no_grad():
-        for input, target in metric_logger.log_every(data_loader, args.print_freq, header):
+        for input, target, _ in metric_logger.log_every(data_loader, args.print_freq, header):
             input = input.to(device, non_blocking=True)
             target = target.to(device, non_blocking=True)
 
