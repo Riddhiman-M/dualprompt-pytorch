@@ -21,7 +21,7 @@ from timm.models import create_model
 from timm.scheduler import create_scheduler
 from timm.optim import create_optimizer
 
-from datasets import build_continual_dataloader
+from datasets_builder import build_continual_dataloader
 from engine import *
 import models
 import utils
@@ -161,6 +161,9 @@ if __name__ == '__main__':
     elif config == 'imr_dualprompt':
         from configs.imr_dualprompt import get_args_parser
         config_parser = subparser.add_parser('imr_dualprompt', help='Split-ImageNet-R DualPrompt configs')
+    elif config == 'domainNet_dualprompt':
+        from configs.domainNet_dualprompt import get_args_parser
+        config_parser = subparser.add_parser('domainNet_dualprompt', help='DomainNet DualPrompt configs')
     else:
         raise NotImplementedError
         
