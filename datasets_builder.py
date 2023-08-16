@@ -132,12 +132,13 @@ def useContinuum_CIFAR100(transform_train, transform_val, args):
     print(f'Number of tasks = {scenario.nb_tasks}')
 
     for taskid, train_taskSet in enumerate(scenario):
-        print(train_taskSet.size())
+        print('********************************')
+        print(f'Train task set shape: {train_taskSet.data.shape}')
         train_taskSet = train_taskSet[:,:2]
-        print(train_taskSet.size())
+        print(f'New Train task set shape: {train_taskSet.data.shape}')
         train_taskSet, val_taskSet = split_train_val(train_taskSet, val_split=0.2)
         if taskid==9:
-            print(train_taskSet.shape)
+            print(train_taskSet.data.shape)
 
         train_loader = DataLoader(train_taskSet,
                                   batch_size=args.batch_size,
