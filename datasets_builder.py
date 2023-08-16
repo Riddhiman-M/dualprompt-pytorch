@@ -127,12 +127,16 @@ def useContinuum_CIFAR100(transform_train, transform_val, args):
     # x, y, t = DomainNet(args.data_path, download=True, train=True)
     # dataset = TensorDataset(x, y + y*t)
     dataset = CIFAR100(args.data_path, download=True, train=True)
-    scenario = ClassIncremental(dataset, nb_tasks=args.num_tasks)
+    scenario = ClassIncremental(dataset, nb_tasks=args.num_tasks, transformations=[transforms.Resize((224, 224))])
 
     print(f'Number of tasks = {scenario.nb_tasks}')
 
     for taskid, train_taskSet in enumerate(scenario):
+        train_taskSet = train_taskSet[:,:2]
         train_taskSet, val_taskSet = split_train_val(train_taskSet, val_split=0.2)
+        if taskid==9:
+            print(train_taskSet.shape)
+
         train_loader = DataLoader(train_taskSet,
                                   batch_size=args.batch_size,
                                   shuffle=True,
@@ -149,10 +153,10 @@ def useContinuum_CIFAR100(transform_train, transform_val, args):
         labels = []
 
         # print(f'Train loader length = {len(train_loader)}, Val loader len = {len(val_loader)}')
-        for x, y, t in train_loader:
+        for x, y in train_loader:
             print(f'Shape of x is {x.size()}')
             print(f'y= {y} and shape of y is {y.size()}')
-            print(f't= {t} and shape of t is {t.size()}')
+            # print(f't= {t} and shape of t is {t.size()}')
             y = torch.unique(y)
             y = y.tolist()
             labels.extend(y)
