@@ -128,6 +128,8 @@ def useContinuum_CIFAR100(transform_train, transform_val, args):
     dataset = CIFAR100(args.data_path, download=True, train=True)
     scenario = ClassIncremental(dataset, nb_tasks=args.num_tasks)
 
+    print(f'Number of tasks = {scenario.nb_tasks}')
+
     for taskid, train_taskSet in enumerate(scenario):
         train_taskSet, val_taskSet = split_train_val(train_taskSet, val_split=0.2)
         train_loader = DataLoader(train_taskSet,
@@ -144,12 +146,18 @@ def useContinuum_CIFAR100(transform_train, transform_val, args):
                                 )
 
         labels = []
+
+        print(f'Train loader length = {len(train_loader)}, Val loader len = {len(val_loader)}')
         for x, y, t in train_loader:
             print(f'x= {x} and shape of x is {x.size()}')
-            print(f'y= {y} and shape of x is {y.size()}')
-            print(f'x= {t} and shape of x is {t.size()}')
-            if y.item() not in labels:
-                labels.append(y)
+            print(f'y= {y} and shape of y is {y.size()}')
+            print(f't= {t} and shape of t is {t.size()}')
+            y = torch.unique(y)
+            y = y.tolist()
+            labels.extend(y)
+            labels = list(set(labels))
+
+        print(f'Task ID: {taskid}, Labels in this task: {labels}')
 
         mask.append(labels)
 
