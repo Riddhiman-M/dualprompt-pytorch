@@ -25,6 +25,7 @@ from timm.data import create_transform
 from continual_datasets.continual_datasets import *
 
 import utils
+import numpy as np
 
 class Lambda(transforms.Lambda):
     def __init__(self, lambd, nb_classes):
@@ -133,12 +134,10 @@ def useContinuum_CIFAR100(transform_train, transform_val, args):
 
     for taskid, train_taskSet in enumerate(scenario):
         print('********************************')
-        print(f'Train task set shape: {train_taskSet.data.shape}')
+        print(f'Train task set shape: {np.array(train_taskSet).data.shape}')
         train_taskSet = train_taskSet[:,:2]
-        print(f'New Train task set shape: {train_taskSet.data.shape}')
+        print(f'New Train task set shape: {np.array(train_taskSet).data.shape}')
         train_taskSet, val_taskSet = split_train_val(train_taskSet, val_split=0.2)
-        if taskid==9:
-            print(train_taskSet.data.shape)
 
         train_loader = DataLoader(train_taskSet,
                                   batch_size=args.batch_size,
