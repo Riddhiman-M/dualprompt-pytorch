@@ -57,6 +57,7 @@ def build_continual_dataloader(args):
         return dataloader, class_mask
     elif args.dataset.startswith('CIFAR'):
         dataloader, class_mask = useContinuum_CIFAR100(transform_train, transform_val, args)
+        args.nb_classes = len(class_mask)*len(class_mask[0])
 
         return dataloader, class_mask
     else:
@@ -147,9 +148,9 @@ def useContinuum_CIFAR100(transform_train, transform_val, args):
 
         labels = []
 
-        print(f'Train loader length = {len(train_loader)}, Val loader len = {len(val_loader)}')
+        # print(f'Train loader length = {len(train_loader)}, Val loader len = {len(val_loader)}')
         for x, y, t in train_loader:
-            print(f'x= {x} and shape of x is {x.size()}')
+            print(f'Shape of x is {x.size()}')
             print(f'y= {y} and shape of y is {y.size()}')
             print(f't= {t} and shape of t is {t.size()}')
             y = torch.unique(y)
@@ -157,6 +158,7 @@ def useContinuum_CIFAR100(transform_train, transform_val, args):
             labels.extend(y)
             labels = list(set(labels))
 
+        print(f'Train loader length = {len(train_loader)}, Val loader len = {len(val_loader)}')
         print(f'Task ID: {taskid}, Labels in this task: {labels}')
 
         mask.append(labels)
@@ -193,7 +195,7 @@ def useContinuum_DomainNet(transform_train, transform_val, args):
 
         labels = []
         for x, y, t in train_loader:
-            print(f'x= {x} and shape of x is {x.size()}')
+            print(f'Shape of x is {x.size()}')
             print(f'y= {y} and shape of x is {y.size()}')
             print(f'x= {t} and shape of x is {t.size()}')
             if y.item() not in labels:
