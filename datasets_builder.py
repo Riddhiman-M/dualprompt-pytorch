@@ -144,7 +144,10 @@ def useContinuum_CIFAR100(transform_train, transform_val, args):
                                 )
 
         labels = []
-        for _, y, _ in train_loader:
+        for x, y, t in train_loader:
+            print(f'x= {x} and shape of x is {x.size()}')
+            print(f'y= {y} and shape of x is {y.size()}')
+            print(f'x= {t} and shape of x is {t.size()}')
             if y.item() not in labels:
                 labels.append(y)
 
@@ -181,7 +184,10 @@ def useContinuum_DomainNet(transform_train, transform_val, args):
                                 )
 
         labels = []
-        for _, y, _ in train_loader:
+        for x, y, t in train_loader:
+            print(f'x= {x} and shape of x is {x.size()}')
+            print(f'y= {y} and shape of x is {y.size()}')
+            print(f'x= {t} and shape of x is {t.size()}')
             if y.item() not in labels:
                 labels.append(y)
 
