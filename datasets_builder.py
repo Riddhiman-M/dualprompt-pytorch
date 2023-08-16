@@ -155,7 +155,7 @@ def useContinuum_CIFAR100(transform_train, transform_val, args):
         labels = []
 
         # print(f'Train loader length = {len(train_loader)}, Val loader len = {len(val_loader)}')
-        for x, y in train_loader:
+        for x, y, t in train_loader:
             print(f'Shape of x is {x.size()}')
             print(f'y= {y} and shape of y is {y.size()}')
             # print(f't= {t} and shape of t is {t.size()}')
