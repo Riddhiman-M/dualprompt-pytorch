@@ -145,7 +145,7 @@ def useContinuum_CIFAR100(transform_train, transform_val, args):
 
         labels = []
         for _, y, _ in train_loader:
-            if y not in labels:
+            if y.item() not in labels:
                 labels.append(y)
 
         mask.append(labels)
@@ -182,7 +182,7 @@ def useContinuum_DomainNet(transform_train, transform_val, args):
 
         labels = []
         for _, y, _ in train_loader:
-            if y not in labels:
+            if y.item() not in labels:
                 labels.append(y)
 
         mask.append(labels)
