@@ -86,14 +86,14 @@ def get_args_parser(subparsers):
     subparsers.add_argument('--use_prefix_tune_for_e_prompt', default=False, type=bool, help='if using the prefix tune for E-Prompt')
 
     # Use prompt pool in L2P to implement E-Prompt
-    subparsers.add_argument('--prompt_pool', default=True, type=bool,)
+    subparsers.add_argument('--prompt_pool', default=False, type=bool,)
     subparsers.add_argument('--size', default=10, type=int,)
     subparsers.add_argument('--length', default=20,type=int, )
     subparsers.add_argument('--top_k', default=1, type=int, )
     subparsers.add_argument('--initializer', default='uniform', type=str,)
     subparsers.add_argument('--prompt_key', default=True, type=bool,)
     subparsers.add_argument('--prompt_key_init', default='uniform', type=str)
-    subparsers.add_argument('--use_prompt_mask', default=True, type=bool)
+    subparsers.add_argument('--use_prompt_mask', default=False, type=bool)
     subparsers.add_argument('--mask_first_epoch', default=False, type=bool)
     subparsers.add_argument('--shared_prompt_pool', default=True, type=bool)
     subparsers.add_argument('--shared_prompt_key', default=False, type=bool)
