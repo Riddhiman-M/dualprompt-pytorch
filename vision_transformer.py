@@ -543,6 +543,8 @@ class VisionTransformer(nn.Module):
                 if self.use_e_prompt and self.e_prompt_layer_idx is not None:
                     res = self.e_prompt(x, prompt_mask=prompt_mask, cls_features=cls_features)
                     e_prompt = res['batched_prompt']
+                else:
+                    res = dict()
 
                 for i, block in enumerate(self.blocks):
                     if i in self.g_prompt_layer_idx:
