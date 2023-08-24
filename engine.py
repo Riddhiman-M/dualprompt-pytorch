@@ -42,7 +42,15 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
     metric_logger.add_meter('Loss', utils.SmoothedValue(window_size=1, fmt='{value:.4f}'))
     header = f'Train: Epoch[{epoch+1:{int(math.log10(args.epochs))+1}}/{args.epochs}]'
     
-    for input, target, _ in metric_logger.log_every(data_loader, args.print_freq, header):
+    for ele in metric_logger.log_every(data_loader, args.print_freq, header):
+        if len(ele) == 2:
+            input, target = ele
+        elif len(ele) == 3:
+            input, target, _ = ele
+        else:
+            print(f'Dataloader has {len(ele)} components')
+            raise NotImplementedError
+
         input = input.to(device, non_blocking=True)
         target = target.to(device, non_blocking=True)
 
@@ -103,7 +111,15 @@ def evaluate(model: torch.nn.Module, original_model: torch.nn.Module, data_loade
     original_model.eval()
 
     with torch.no_grad():
-        for input, target, _ in metric_logger.log_every(data_loader, args.print_freq, header):
+        for ele in metric_logger.log_every(data_loader, args.print_freq, header):
+            if len(ele) == 2:
+                input, target = ele
+            elif len(ele) == 3:
+                input, target, _ = ele
+            else:
+                print(f'Dataloader has {len(ele)} components')
+                raise NotImplementedError
+
             input = input.to(device, non_blocking=True)
             target = target.to(device, non_blocking=True)
 
