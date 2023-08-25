@@ -84,8 +84,10 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
         optimizer.zero_grad()
         loss.backward() 
         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)
-        # if task_id>1:
+        # if task_id>0:
         l1_norm_g_prompt = torch.norm(model.g_prompt, p=1)
+
+        print(f'G_prompt = {model.g_prompt}, G_prompt_shape = {model.g_prompt.shape}, G_prompt_grad = {model.g_prompt.grad.data}, L1_norm = {l1_norm_g_prompt}')
         model.g_prompt.grad.data /= l1_norm_g_prompt
           
         optimizer.step()
