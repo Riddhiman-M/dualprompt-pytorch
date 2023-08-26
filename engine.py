@@ -14,6 +14,7 @@ import sys
 import os
 import datetime
 import json
+import copy
 from typing import Iterable
 from pathlib import Path
 
@@ -28,7 +29,7 @@ import utils
 
 def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module, 
                     criterion, data_loader: Iterable, optimizer: torch.optim.Optimizer,
-                    device: torch.device, epoch: int, max_norm: float = 0,
+                    device: torch.device, epoch: int, max_norm: float = 0, old_prompt = None,
                     set_training_mode=True, task_id=-1, class_mask=None, args = None,):
 
     model.train(set_training_mode)
@@ -75,6 +76,9 @@ def train_one_epoch(model: torch.nn.Module, original_model: torch.nn.Module,
         if args.pull_constraint and 'reduce_sim' in output:
             loss = loss - args.pull_constraint_coeff * output['reduce_sim']
 
+        if task_id > 0:
+            prompt_loss = torch.norm(old_prompt - model.g_prompt, p=1)
+            loss = loss + 0.01*prompt_loss
         acc1, acc5 = accuracy(logits, target, topk=(1, 5))
 
         if not math.isfinite(loss.item()):
@@ -249,11 +253,12 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
         # Create new optimizer for each task to clear optimizer status
         if task_id > 0 and args.reinit_optimizer:
             optimizer = create_optimizer(args, model)
-        
-        for epoch in range(args.epochs):            
+
+        old_prompt = copy.deepcopy(model.g_prompt)
+        for epoch in range(args.epochs):
             train_stats = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
                                         data_loader=data_loader[task_id]['train'], optimizer=optimizer, 
-                                        device=device, epoch=epoch, max_norm=args.clip_grad, 
+                                        device=device, epoch=epoch, max_norm=args.clip_grad, old_prompt = old_prompt,
                                         set_training_mode=True, task_id=task_id, class_mask=class_mask, args=args,)
             
             if lr_scheduler:
