@@ -254,7 +254,7 @@ def train_and_evaluate(model: torch.nn.Module, model_without_ddp: torch.nn.Modul
         if task_id > 0 and args.reinit_optimizer:
             optimizer = create_optimizer(args, model)
 
-        old_prompt = copy.deepcopy(model.g_prompt)
+        old_prompt = copy.deepcopy(model.g_prompt.detach())
         for epoch in range(args.epochs):
             train_stats = train_one_epoch(model=model, original_model=original_model, criterion=criterion, 
                                         data_loader=data_loader[task_id]['train'], optimizer=optimizer, 
